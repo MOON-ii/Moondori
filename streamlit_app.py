@@ -32,7 +32,7 @@ place_images = {
 # 🏝️ 문도리 스타일 소개
 # ---------------------
 st.markdown("""
-## 안녕하세요!😄
+### 안녕하세요!😄
 ### 귀여운 문도리의 **호주 시드니 여행 가이드**에 오신 것을 환영합니다 ✨🦘🐨  
 
 GPT-3.5를 기반으로 여러분의 여행을 더 **똑똑하고 즐겁게 만들어줄 스마트 챗봇**이에요.  
@@ -108,7 +108,7 @@ if st.button("🗺️ 나만의 여행 일정 추천받기"):
             # 🔍 GPT 응답 중 장소 이름 포함된 것 찾기
             for place, data in place_images.items():
                 if place in response:
-                    st.image(data["image"], caption=place, use_column_width=True)
+                    st.image(data["image"], caption=place, use_container_width=True)
                     st.markdown(f"📝 {data['desc']}")
 
         except Exception as e:
