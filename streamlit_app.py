@@ -60,7 +60,7 @@ else:
         이 스타일에 맞는 여행 일정과 추천 장소를 알려주세요.
         """
 
-    st.session_state.messages.append({"role": "user", "content": user_prompt})
+        st.session_state.messages.append({"role": "user", "content": user_prompt})
         with st.chat_message("user"):
             st.markdown(user_prompt)
 
