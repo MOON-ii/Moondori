@@ -2,63 +2,93 @@ import streamlit as st
 import os
 from openai import OpenAI
 
-# 💬 앱 제목과 소개
+# ---------------------
+# 🎯 장소별 이미지 & 설명 사전
+# ---------------------
+place_images = {
+    "오페라 하우스": {
+        "image": "https://upload.wikimedia.org/wikipedia/commons/4/40/Sydney_Opera_House_Sails.jpg",
+        "desc": "시드니의 랜드마크! 독특한 지붕 디자인으로 세계적으로 유명한 공연 예술 공간이에요."
+    },
+    "하버 브리지": {
+        "image": "https://upload.wikimedia.org/wikipedia/commons/b/bb/Sydney_Harbour_Bridge_night.jpg",
+        "desc": "시드니 항구를 잇는 거대한 철제 아치형 다리. 도보로 건널 수도 있어요!"
+    },
+    "본다이 비치": {
+        "image": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Bondi_Beach_aerial.jpg",
+        "desc": "서핑, 산책, 여유로운 하루 보내기에 완벽한 아름다운 해변이에요."
+    },
+    "타롱가 동물원": {
+        "image": "https://upload.wikimedia.org/wikipedia/commons/4/41/Taronga_Zoo_skyline.jpg",
+        "desc": "코알라, 캥거루를 직접 볼 수 있는 시드니 최고의 동물원!"
+    },
+    "블루마운틴": {
+        "image": "https://upload.wikimedia.org/wikipedia/commons/4/47/Three_Sisters_BM_NSW_Australia.jpg",
+        "desc": "장엄한 자연 절경과 '세 자매 바위'로 유명한 국립공원. 당일치기 여행으로 인기!"
+    }
+}
+
+# ---------------------
+# 🏝️ 앱 소개
+# ---------------------
 st.title("💬 시드니 여행 가이드 챗봇")
 st.write(
-    "안녕하세요 C: 귀여운 문도리의 호주 시드니 여행 가이드는 GPT-3.5를 기반으로 여러분의 여행을 더 똑똑하고 즐겁게 만들어줄 스마트 챗봇이에요!"
+    "안녕하세요! 귀여운 문도리의 호주 시드니 여행 가이드에 오신것을 환영합니다 C: GPT-3.5를 기반으로 여러분의 여행을 더 똑똑하고 즐겁게 만들어줄 스마트 챗봇이에요!"
 )
 
-# 🇦🇺 시드니 소개
 st.markdown("""
 ### 🐨 시드니는 어떤 곳인가요?
 
 시드니는 호주의 대표적인 도시이자, 세계적으로 사랑받는 여행지예요.  
 아름다운 해변, 웅장한 오페라 하우스, 다양한 문화와 맛집, 그리고 여유로운 라이프스타일까지 모두 갖춘 도시랍니다.
-
-🌊 **본다이 비치**에서 서핑을 즐기고,  
-🎭 **오페라 하우스** 앞에서 인증샷도 남기고,  
-🌉 **하버 브리지**를 건너며 멋진 일몰을 감상해보세요.
-
-혼자, 친구와, 가족과도 모두 찰떡인 도시예요 🧡  
+남반구에 위치하여, 북반구와는 다른 계절을 즐길 수 있어요 c:
 """)
 
-# 🔐 OpenAI API 키 입력
-openai_api_key = st.text_input("🔑 OpenAI API Key를 입력하세요", type="password")
+# ---------------------
+# 🔑 API 키 입력
+# ---------------------
+openai_api_key = st.text_input("🔐 OpenAI API Key를 입력하세요", type="password")
 if not openai_api_key:
-    st.info("OpenAI API 키를 입력해야 챗봇을 사용할 수 있어요!", icon="🔑")
+    st.info("API 키를 입력하시면 챗봇을 사용할 수 있어요!", icon="🔑")
     st.stop()
 else:
-    os.environ["OPENAI_API_KEY"] = openai_api_key  # 환경변수 설정
-    client = OpenAI()  # 환경변수에서 키 자동 인식
+    os.environ["OPENAI_API_KEY"] = openai_api_key
+    client = OpenAI()
 
-# 🧳 여행 옵션 받기
+# ---------------------
+# ✈️ 여행 정보 입력
+# ---------------------
 travel_days = st.slider("⏳ 여행은 며칠 예정인가요?", 1, 14, 4)
 
-with st.expander("🎒 어떤 스타일의 여행을 원하시나요?"):
+with st.expander("🎒 여행 스타일 선택"):
     travel_styles = st.multiselect(
         "복수 선택 가능!",
         ["맛집 탐방", "자연 힐링", "문화 체험", "사진 찍기", "쇼핑", "혼자 여행", "가족 여행", "커플 여행"]
     )
 
-# 💬 메시지 상태 저장
+# ---------------------
+# 💬 이전 대화 불러오기
+# ---------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 이전 대화 보여주기
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# 📩 여행 일정 추천 버튼
+# ---------------------
+# 🗺️ GPT로 여행 일정 추천
+# ---------------------
 if st.button("🗺️ 나만의 여행 일정 추천받기"):
     if not travel_styles:
-        st.warning("여행 스타일을 한 가지 이상 선택해 주세요!")
+        st.warning("여행 스타일을 최소 1개 이상 선택해주세요!")
     else:
         user_prompt = f"""
         저는 {travel_days}일 동안 시드니 여행을 할 예정입니다.
         여행 스타일은 {', '.join(travel_styles)} 입니다.
         이 스타일에 맞는 여행 일정과 추천 장소를 알려주세요.
         """
+
         st.session_state.messages.append({"role": "user", "content": user_prompt})
         with st.chat_message("user"):
             st.markdown(user_prompt)
@@ -78,11 +108,19 @@ if st.button("🗺️ 나만의 여행 일정 추천받기"):
 
             st.session_state.messages.append({"role": "assistant", "content": response})
 
+            # 🔍 GPT 응답 중 장소 이름 포함된 것 찾기
+            for place, data in place_images.items():
+                if place in response:
+                    st.image(data["image"], caption=place, use_column_width=True)
+                    st.markdown(f"📝 {data['desc']}")
+
         except Exception as e:
             st.error(f"에러가 발생했어요: {e}")
 
-# 💬 자유 입력 질문도 가능!
-if prompt := st.chat_input("호주 시드니 여행이 궁금한가요? 자유롭게 질문해보세요!"):
+# ---------------------
+# 💬 자유 질문 입력
+# ---------------------
+if prompt := st.chat_input("시드니 여행이 궁금한가요? 자유롭게 질문해보세요!"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -101,6 +139,11 @@ if prompt := st.chat_input("호주 시드니 여행이 궁금한가요? 자유�
             response = st.write_stream(stream)
 
         st.session_state.messages.append({"role": "assistant", "content": response})
+
+        for place, data in place_images.items():
+            if place in response:
+                st.image(data["image"], caption=place, use_column_width=True)
+                st.markdown(f"📝 {data['desc']}")
 
     except Exception as e:
         st.error(f"에러가 발생했어요: {e}")
