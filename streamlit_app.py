@@ -4,7 +4,7 @@ from openai import OpenAI
 # Show title and description.
 st.title("💬 Chatbot")
 st.write(
-    "귀여운 문도리의 대만 여행 가이드 서비스는 OpenAI의 GPT-3.5 모델을 활용하여, 여러분의 여행을 더욱 즐겁고 편리하게 만들어주는 스마트 챗봇입니다."
+    "안녕하세요 C: 귀여운 문도리의 대만 여행 가이드 서비스는 OpenAI의 GPT-3.5 모델을 활용하여, 여러분의 여행을 더욱 즐겁고 편리하게 만들어주는 스마트 챗봇입니다."
     "간단히 OpenAI API 키만 입력하면 바로 이용하실 수 있어요."
 )
 
